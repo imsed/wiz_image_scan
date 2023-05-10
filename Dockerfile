@@ -8,7 +8,7 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y python3 python3-pip
 
-# Copy the requirements file into the container
+# Copy the requirements file local into the container
 COPY requirements.txt /app/requirements.txt
 
 # Install any needed packages specified in requirements.txt
