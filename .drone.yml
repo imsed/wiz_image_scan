@@ -7,7 +7,7 @@ steps:
   network_mode: host
   settings:
     tags: ${DRONE_COMMIT_SHA}
-    repo: imsed123/dronebuild
+    repo: imsed123/drone
     username:
       from_secret: repo_username
     password:
