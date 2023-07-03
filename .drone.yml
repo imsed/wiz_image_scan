@@ -2,18 +2,25 @@ kind: pipeline
 type: kubernetes
 name: wizcli-pipeline
 
-clone:
-  disable: false
+
+
+services:
+- name: docker
+  image: docker:dind
+  volumes:
+  - name: dockersock
+    path: /var/run
 
 steps:
-- name: docker-build
-  image: docker:dind
-  commands:  
-  - docker build -t my-image .
-  environment:
-    DOCKER_HOST: tcp://localhost:2375
+- name: build
+  image: docker
+  commands:
+  - docker build -t ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA} .
+  volumes:
+  - name: dockersock
+    path: /var/run
 
-- name: wizcli-scan
+- name: scan
   image: wiziocli.azurecr.io/wizcli:latest
   commands:
   - /entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET 
@@ -25,7 +32,13 @@ steps:
       from_secret: WIZ_CLIENT_ID
     WIZ_CLIENT_SECRET:
       from_secret: WIZ_CLIENT_SECRET
-    DOCKER_HOST: tcp://localhost:2375
+  volumes:
+  - name: dockersock
+    path: /var/run
+
+volumes:
+- name: dockersock
+  temp: {}
 
 
 
