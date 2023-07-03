@@ -17,7 +17,7 @@ steps:
     WIZCLI="/usr/bin/wizcli"
     if ! [ -f $WIZCLI ]; then
         echo "##[command]Obtaining WizCLI from the inter-webs..."
-        curl -o https://wizcli.app.wiz.io/wizcli
+        curl -Lo wizcli https://wizcli.app.wiz.io/latest/wizcli-linux-amd64
         echo "##[command]Making WizCLI executable"
         chmod +x ./wizcli
     fi
