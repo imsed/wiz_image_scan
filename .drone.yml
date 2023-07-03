@@ -20,7 +20,7 @@ steps:
   - /entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET 
   - /entrypoint docker scan  -p $WIZ_POLICY  --image /kaniko/my-image.tar
   environment:
-    WIZ_POLICY: imsed-mis-policy
+    WIZ_POLICY: imsed-cicd-policy
     WIZ_CLIENT_ID:
       from_secret: WIZ_CLIENT_ID
     WIZ_CLIENT_SECRET:
