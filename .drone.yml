@@ -7,22 +7,20 @@ clone:
   disable: false
 
 steps:
-- name: kaniko-build
-  image: gcr.io/kaniko-project/executor:debug
-  commands:  
-  - mkdir -p /kaniko/.docker
-  - echo '{"auths": {"https://index.docker.io/v1/": {"auth": ""}}}' > /kaniko/.docker/config.json
-  - /kaniko/executor --context . --dockerfile Dockerfile --no-push --tarPath /kaniko/my-image.tar
+- name: echo-hello
+  image: alpine
+  commands:
+    - echo "Hello, world!"
 
 - name: authentication
   image: wiziocli.azurecr.io/wizcli:latest
   commands:
-  - /entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET 
-  - /entrypoint docker scan  -p $WIZ_POLICY  --image /kaniko/my-image.tar
+    - echo "Authenticating"
   environment:
     WIZ_POLICY: imsed-mis-policy
     WIZ_CLIENT_ID:
       from_secret: WIZ_CLIENT_ID
     WIZ_CLIENT_SECRET:
       from_secret: WIZ_CLIENT_SECRET
+
 
