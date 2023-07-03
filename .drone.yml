@@ -1,6 +1,5 @@
----
 kind: pipeline
-type: docker
+type: kubernetes
 name: wizcli-pipeline
 
 clone:
@@ -8,14 +7,18 @@ clone:
 
 steps:
 - name: docker-build
-  image: docker
+  image: docker:dind
+  commands:  
+  - docker build -t my-image .
   environment:
     DOCKER_HOST: tcp://localhost:2375
-  commands:
-  - docker build -t my-image .
 
-- name: authentication
+- name: wizcli-scan
   image: wiziocli.azurecr.io/wizcli:latest
+  commands:
+  - /entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET 
+  - docker save my-image > my-image.tar
+  - /entrypoint docker scan  -p $WIZ_POLICY  --image my-image.tar
   environment:
     WIZ_POLICY: imsed-mis-policy
     WIZ_CLIENT_ID:
@@ -23,9 +26,7 @@ steps:
     WIZ_CLIENT_SECRET:
       from_secret: WIZ_CLIENT_SECRET
     DOCKER_HOST: tcp://localhost:2375
-  commands:
-  - /entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET 
-  - /entrypoint docker scan -p $WIZ_POLICY --image my-image
+
 
 
 
