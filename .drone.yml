@@ -9,23 +9,19 @@ clone:
 services:
 - name: docker
   image: docker:dind
-  volumes:
-  - name: dockersock
-    path: /var/run
 
 steps:
 - name: docker-build
   image: docker
   commands:
+  - dockerd-entrypoint.sh &
+  - sleep 20
   - docker build -t my-image .
-  volumes:
-  - name: dockersock
-    path: /var/run
 
 - name: authentication
   image: wiziocli.azurecr.io/wizcli:latest
   environment:
-    WIZ_POLICY: imsed-cicd-policy
+    WIZ_POLICY: imsed-mis-policy
     WIZ_CLIENT_ID:
       from_secret: WIZ_CLIENT_ID
     WIZ_CLIENT_SECRET:
@@ -33,14 +29,6 @@ steps:
   commands:
   - /entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET 
   - /entrypoint docker scan -p $WIZ_POLICY --image my-image
-  volumes:
-  - name: dockersock
-    path: /var/run
-
-volumes:
-  - name: dockersock
-    host:
-      path: /var/run
 
 
 
