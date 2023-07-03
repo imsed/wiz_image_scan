@@ -1,35 +1,27 @@
 ---
 kind: pipeline
-type: exec
-name: wiz-scan
+type: kubernetes
+name: wizcli-pipeline
 
-platform:
-  os: linux
-  arch: amd64
+clone:
+  disable: false
 
 steps:
-
-- name: Get WizCLI and Scan Image
+- name: kaniko-build
+  image: gcr.io/kaniko-project/executor:latest
   commands:
-  - | 
-    #!/bin/bash
-    set -e pipefail
-    WIZCLI="/usr/bin/wizcli"
-    if ! [ -f $WIZCLI ]; then
-        echo "##[command]Obtaining WizCLI from the inter-webs..."
-        curl -Lo wizcli https://wizcli.app.wiz.io/latest/wizcli-linux-amd64
-        echo "##[command]Making WizCLI executable"
-        chmod +x ./wizcli
-    fi
-    docker build -t ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA} -f $DOCKER_FILE $CONTEXT
-    ./wizcli auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET
-    ./wizcli docker scan --image ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA} -p $WIZ_POLICY
+  - /kaniko/executor --context $DRONE_WORKSPACE --dockerfile $DRONE_WORKSPACE/Dockerfile --no-push --tarPath /kaniko/my-image.tar
+
+- name: authentication
+  image: wiziocli.azurecr.io/wizcli:latest
+  commands:
+  - /entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET 
+  - /entrypoint docker scan  -p $WIZ_POLICY  --image /kaniko/my-image.tar
   environment:
-    DOCKER_FILE: ./Dockerfile
-    CONTEXT: .
-    WIZ_POLICY: imsed-cicd-policy
+    WIZ_POLICY: imsed-mis-policy
     WIZ_CLIENT_ID:
       from_secret: WIZ_CLIENT_ID
     WIZ_CLIENT_SECRET:
       from_secret: WIZ_CLIENT_SECRET
+
 
