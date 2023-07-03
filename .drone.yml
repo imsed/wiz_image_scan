@@ -14,6 +14,10 @@ steps:
     context: .
     tarpath: /kaniko/my-image.tar
     tar: true
+    registry: "dummy"
+    repo: "dummy"
+    username: "dummy"
+    password: "dumy"
 
 - name: authentication
   image: wiziocli.azurecr.io/wizcli:latest
