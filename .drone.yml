@@ -8,9 +8,12 @@ clone:
 
 steps:
 - name: kaniko-build
-  image: gcr.io/kaniko-project/executor:latest
-  commands:
-  - /kaniko/executor --context . --dockerfile Dockerfile --no-push --tarPath /kaniko/my-image.tar
+  image: plugins/kaniko
+  settings:
+    dockerfile: Dockerfile
+    context: .
+    tarpath: /kaniko/my-image.tar
+    tar: true
 
 - name: authentication
   image: wiziocli.azurecr.io/wizcli:latest
