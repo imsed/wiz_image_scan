@@ -11,7 +11,7 @@ steps:
   image: gcr.io/kaniko-project/executor:debug
   commands:  
   - mkdir -p /kaniko/.docker
-  - echo "{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"\"}}}" > /kaniko/.docker/config.json
+  - echo '{"auths": {"https://index.docker.io/v1/": {"auth": ""}}}' > /kaniko/.docker/config.json
   - /kaniko/executor --context . --dockerfile Dockerfile --no-push --tarPath /kaniko/my-image.tar
 
 - name: authentication
@@ -25,5 +25,4 @@ steps:
       from_secret: WIZ_CLIENT_ID
     WIZ_CLIENT_SECRET:
       from_secret: WIZ_CLIENT_SECRET
-
 
