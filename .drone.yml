@@ -12,7 +12,7 @@ steps:
   commands:  
   - mkdir -p /kaniko/.docker
   - echo '{}' > /kaniko/.docker/config.json
-  - /kaniko/executor --context . --dockerfile Dockerfile --no-push --tarPath /kaniko/my-image.tar
+  - /kaniko/executor --context . --dockerfile Dockerfile --destination=dummy --no-push --tarPath /kaniko/my-image.tar
 
 - name: authentication
   image: wiziocli.azurecr.io/wizcli:latest
