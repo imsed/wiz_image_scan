@@ -1,46 +1,37 @@
+
 kind: pipeline
-type: kubernetes
-name: wizcli-pipeline
-
-
-
-services:
-- name: docker
-  image: docker:dind
-  volumes:
-  - name: dockersock
-    path: /var/run
+type: docker
+name: default
 
 steps:
-- name: build
-  image: docker
-  environment:
-    DOCKER_HOST: tcp://localhost:2375
-  commands:
-  - docker build -t ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA} .
+- name: build_and_scan
+  image: docker:dind
   volumes:
-  - name: dockersock
+  - name: docker_socket
     path: /var/run
-
-- name: scan
-  image: wiziocli.azurecr.io/wizcli:latest
   commands:
-  - /entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET 
-  - docker save my-image > my-image.tar
-  - /entrypoint docker scan  -p $WIZ_POLICY  --image my-image.tar
+  - | 
+    #!/bin/bash
+    set -e pipefail
+    WIZCLI="/usr/bin/wizcli"
+    if ! [ -f $WIZCLI ]; then
+        echo "##[command]Obtaining WizCLI from the inter-webs..."
+        curl -Lo wizcli https://wizcli.app.wiz.io/latest/wizcli-linux-amd64
+        echo "##[command]Making WizCLI executable"
+        chmod +x ./wizcli
+    fi
+    docker build -t ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA} -f $DOCKER_FILE $CONTEXT
+    ./wizcli auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET
+    ./wizcli docker scan --image ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA} -p $WIZ_POLICY
   environment:
-    WIZ_POLICY: imsed-mis-policy
+    DOCKER_FILE: ./Dockerfile
+    CONTEXT: .
+    WIZ_POLICY: imsed-cicd-policy
     WIZ_CLIENT_ID:
       from_secret: WIZ_CLIENT_ID
     WIZ_CLIENT_SECRET:
       from_secret: WIZ_CLIENT_SECRET
-  volumes:
-  - name: dockersock
-    path: /var/run
 
-volumes:
-- name: dockersock
-  temp: {}
 
 
 
