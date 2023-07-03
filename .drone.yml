@@ -22,12 +22,12 @@ steps:
         chmod +x ./wizcli
     fi
     docker build -t ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA} -f $DOCKER_FILE $CONTEXT
-    wizcli auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET
-    wizcli docker scan --image ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA} -p $WIZ_POLICY
+    ./wizcli auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET
+    ./wizcli docker scan --image ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA} -p $WIZ_POLICY
   environment:
     DOCKER_FILE: ./Dockerfile
     CONTEXT: .
-    WIZ_POLICY: yourwizpolicy
+    WIZ_POLICY: imsed-cicd-policy
     WIZ_CLIENT_ID:
       from_secret: WIZ_CLIENT_ID
     WIZ_CLIENT_SECRET:
