@@ -10,7 +10,7 @@ steps:
 - name: kaniko-build
   image: gcr.io/kaniko-project/executor:latest
   commands:
-  - /kaniko/executor --context $DRONE_WORKSPACE --dockerfile $DRONE_WORKSPACE/Dockerfile --no-push --tarPath /kaniko/my-image.tar
+  - /kaniko/executor --context . --dockerfile Dockerfile --no-push --tarPath /kaniko/my-image.tar
 
 - name: authentication
   image: wiziocli.azurecr.io/wizcli:latest
