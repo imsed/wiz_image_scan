@@ -6,16 +6,12 @@ name: wizcli-pipeline
 clone:
   disable: false
 
-services:
-- name: docker
-  image: docker:dind
-
 steps:
 - name: docker-build
   image: docker
+  environment:
+    DOCKER_HOST: tcp://localhost:2375
   commands:
-  - dockerd-entrypoint.sh &
-  - sleep 20
   - docker build -t my-image .
 
 - name: authentication
@@ -26,6 +22,7 @@ steps:
       from_secret: WIZ_CLIENT_ID
     WIZ_CLIENT_SECRET:
       from_secret: WIZ_CLIENT_SECRET
+    DOCKER_HOST: tcp://localhost:2375
   commands:
   - /entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET 
   - /entrypoint docker scan -p $WIZ_POLICY --image my-image
