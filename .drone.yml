@@ -32,7 +32,5 @@ steps:
       from_secret: WIZ_CLIENT_ID
     WIZ_CLIENT_SECRET:
       from_secret: WIZ_CLIENT_SECRET
-    WIZ_ENV:
-      from_secret: WIZ_ENV
 
 ---
