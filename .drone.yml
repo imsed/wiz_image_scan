@@ -8,16 +8,12 @@ clone:
 
 steps:
 - name: kaniko-build
-  image: plugins/kaniko
-  settings:
-    dockerfile: Dockerfile
-    context: .
-    tarpath: /kaniko/my-image.tar
-    tar: true
-    registry: "dummy"
-    repo: "dummy"
-    username: "dummy"
-    password: "dumy"
+  image: gcr.io/kaniko-project/executor:debug
+  commands:
+  - mkdir -p /kaniko/.docker
+  - echo "{\"auths\": {\"https://index.docker.io/v1/\": {\"auth\": \"\"}}}" > /kaniko/.docker/config.json
+  - /kaniko/executor --context . --dockerfile Dockerfile --no-push --tarPath /kaniko/my-image.tar
+
 
 - name: authentication
   image: wiziocli.azurecr.io/wizcli:latest
