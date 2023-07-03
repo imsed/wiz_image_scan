@@ -33,4 +33,3 @@ steps:
     WIZ_CLIENT_SECRET:
       from_secret: WIZ_CLIENT_SECRET
 
----
