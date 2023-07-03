@@ -1,14 +1,38 @@
+---
 kind: pipeline
-name: default
+type: exec
+name: wiz-scan
+
+platform:
+  os: linux
+  arch: amd64
 
 steps:
-- name: Build
-  image: plugins/docker
-  network_mode: host
-  settings:
-    tags: ${DRONE_COMMIT_SHA}
-    repo: imsed123/drone
-    username:
-      from_secret: repo_username
-    password:
-      from_secret: repo_password
+
+- name: Get WizCLI and Scan Image
+  commands:
+  - | 
+    #!/bin/bash
+    set -e pipefail
+    WIZCLI="/usr/bin/wizcli"
+    if ! [ -f $WIZCLI ]; then
+        echo "##[command]Obtaining WizCLI from the inter-webs..."
+        curl -o https://wizcli.app.wiz.io/wizcli
+        echo "##[command]Making WizCLI executable"
+        chmod +x ./wizcli
+    fi
+    docker build -t ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA} -f $DOCKER_FILE $CONTEXT
+    wizcli auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET
+    wizcli docker scan --image ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA} -p $WIZ_POLICY
+  environment:
+    DOCKER_FILE: ./Dockerfile
+    CONTEXT: .
+    WIZ_POLICY: yourwizpolicy
+    WIZ_CLIENT_ID:
+      from_secret: WIZ_CLIENT_ID
+    WIZ_CLIENT_SECRET:
+      from_secret: WIZ_CLIENT_SECRET
+    WIZ_ENV:
+      from_secret: WIZ_ENV
+
+---
