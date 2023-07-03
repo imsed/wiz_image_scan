@@ -14,6 +14,8 @@ services:
 steps:
 - name: build
   image: docker
+  environment:
+    DOCKER_HOST: tcp://docker:2375
   commands:
   - docker build -t ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA} .
   volumes:
