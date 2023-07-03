@@ -1,40 +1,47 @@
 ---
 kind: pipeline
-type: kubernetes
+type: docker
 name: wizcli-pipeline
 
 clone:
   disable: false
 
-volumes:
-- name: shared
-  temp: {}
+services:
+- name: docker
+  image: docker:dind
+  volumes:
+  - name: dockersock
+    path: /var/run
 
 steps:
-- name: kaniko-build
-  image: gcr.io/kaniko-project/executor:debug
-  commands:  
-  - mkdir -p /kaniko/.docker
-  - echo '{}' > /kaniko/.docker/config.json
-  - /kaniko/executor --context . --dockerfile Dockerfile --destination=dummy --no-push --tarPath /shared/my-image.tar
+- name: docker-build
+  image: docker
+  commands:
+  - docker build -t my-image .
   volumes:
-  - name: shared
-    path: /shared
+  - name: dockersock
+    path: /var/run
 
 - name: authentication
   image: wiziocli.azurecr.io/wizcli:latest
-  commands:
-  - /entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET 
-  - /entrypoint docker scan  -p $WIZ_POLICY  --image /shared/my-image.tar
   environment:
     WIZ_POLICY: imsed-cicd-policy
     WIZ_CLIENT_ID:
       from_secret: WIZ_CLIENT_ID
     WIZ_CLIENT_SECRET:
       from_secret: WIZ_CLIENT_SECRET
+  commands:
+  - /entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET 
+  - /entrypoint docker scan -p $WIZ_POLICY --image my-image
   volumes:
-  - name: shared
-    path: /shared
+  - name: dockersock
+    path: /var/run
+
+volumes:
+  - name: dockersock
+    host:
+      path: /var/run
+
 
 
 
