@@ -27,7 +27,7 @@ steps:
     fi
     docker build -t ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA} -f $DOCKER_FILE $CONTEXT
     ./wizcli auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET
-    ./wizcli docker scan --image ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA} -p $WIZ_POLICY
+    ./wizcli docker scan --image ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA} -p $WIZ_POLICY  --driver mountWithLayers
   environment:
     DOCKER_FILE: ./Dockerfile
     CONTEXT: .
