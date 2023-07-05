@@ -1,36 +1,39 @@
-
+---
 kind: pipeline
-type: docker
-name: default
+type: kubernetes
+name: wizcli-pipeline
+
+volumes:
+- name: shared
+  temp: {}
 
 steps:
-- name: build_and_scan
-  image: docker:dind
+- name: kaniko-build
+  image: gcr.io/kaniko-project/executor:debug
+  commands:  
+  - mkdir -p /kaniko/.docker
+  - echo '{}' > /kaniko/.docker/config.json
+  - /kaniko/executor --context . --dockerfile Dockerfile --destination=dummy --no-push --tarPath /shared/my-image.tar
   volumes:
-  - name: docker_socket
-    path: /var/run
+  - name: shared
+    path: /shared
+
+- name: authentication
+  image: wiziocli.azurecr.io/wizcli:latest
   commands:
-  - | 
-    #!/bin/bash
-    set -e pipefail
-    WIZCLI="/usr/bin/wizcli"
-    if ! [ -f $WIZCLI ]; then
-        echo "##[command]Obtaining WizCLI from the inter-webs..."
-        curl -Lo wizcli https://wizcli.app.wiz.io/latest/wizcli-linux-amd64
-        echo "##[command]Making WizCLI executable"
-        chmod +x ./wizcli
-    fi
-    docker build -t ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA} -f $DOCKER_FILE $CONTEXT
-    ./wizcli auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET
-    ./wizcli docker scan --image ${DRONE_REPO_NAME}:${DRONE_COMMIT_SHA} -p $WIZ_POLICY
+  - /entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET 
+  - /entrypoint docker scan  -p $WIZ_POLICY  --image /shared/my-image.tar
   environment:
-    DOCKER_FILE: ./Dockerfile
-    CONTEXT: .
     WIZ_POLICY: imsed-cicd-policy
     WIZ_CLIENT_ID:
       from_secret: WIZ_CLIENT_ID
     WIZ_CLIENT_SECRET:
       from_secret: WIZ_CLIENT_SECRET
+  volumes:
+  - name: shared
+    path: /shared
+  event:
+  - pull_request
 
 
 
