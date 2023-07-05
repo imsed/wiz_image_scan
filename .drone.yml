@@ -26,7 +26,7 @@ steps:
   image: wiziocli.azurecr.io/wizcli:latest
   commands:
   - /entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET 
-  - /entrypoint docker scan  -p $WIZ_POLICY  --image /shared/my-image.tar --driver mountWithLayers
+  - /entrypoint docker scan  -p $WIZ_POLICY  --image /shared/my-image.tar 
   environment:
     WIZ_POLICY: imsed-cicd-policy
     WIZ_CLIENT_ID:
