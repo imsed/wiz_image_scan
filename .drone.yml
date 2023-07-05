@@ -3,6 +3,10 @@ kind: pipeline
 type: kubernetes
 name: image-scan
 
+trigger:
+  event:
+    - pull_request
+
 volumes:
 - name: shared
   temp: {}
@@ -32,8 +36,6 @@ steps:
   volumes:
   - name: shared
     path: /shared
-  event:
-  - pull_request
 
 
 
