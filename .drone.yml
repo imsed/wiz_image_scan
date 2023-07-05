@@ -13,7 +13,7 @@ platform:
 
 steps:
 
-- name: Get WizCLI and Scan Image
+- name: Build and scan the image
   commands:
   - | 
     #!/bin/bash
@@ -35,8 +35,7 @@ steps:
     WIZ_CLIENT_ID:
       from_secret: WIZ_CLIENT_ID
     WIZ_CLIENT_SECRET:
-      from_secret: WIZ_CLIENT_SECRE
-
+      from_secret: WIZ_CLIENT_SECRET
 
 
 
