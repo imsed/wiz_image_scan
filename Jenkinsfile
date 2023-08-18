@@ -33,8 +33,8 @@ spec:
 
     environment {
         WIZ_POLICY = 'imsed-cicd-policy'
-        WIZ_CLIENT_ID = credentials('WIZ_CLIENT_ID_CREDENTIAL_ID')
-        WIZ_CLIENT_SECRET = credentials('WIZ_CLIENT_SECRET_CREDENTIAL_ID')
+        WIZ_CLIENT_ID = credentials('WIZ_CLIENT_ID')
+        WIZ_CLIENT_SECRET = credentials('WIZ_CLIENT_SECRET')
     }
 
     stages {
