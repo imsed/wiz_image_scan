@@ -4,7 +4,7 @@ FROM ubuntu:20.04
 # Set the working directory
 WORKDIR /app
 
-# Install necessary packages
+# Install necessary package
 RUN apt-get update && \
     apt-get install -y python3 python3-pip
 
