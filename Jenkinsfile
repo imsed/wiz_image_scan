@@ -11,7 +11,7 @@ spec:
     - name: kaniko
       image: gcr.io/kaniko-project/executor:debug
       command:
-      - cat
+      - version
       tty: true
       volumeMounts:
       - name: shared-data
