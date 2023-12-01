@@ -52,6 +52,7 @@ spec:
             steps {
                 container('wizcli') {
                     sh '''
+                    echo '/entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET'
                     /entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET 
                     /entrypoint docker scan -p $WIZ_POLICY --image /shared/my-image.tar
                     '''
