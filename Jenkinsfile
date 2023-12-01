@@ -19,9 +19,7 @@ spec:
     - name: wizcli
       image: wiziocli.azurecr.io/wizcli:latest-amd64
       command:
-      - tail
-      - "-f"
-      - "/dev/null"
+      - sleep
       tty: true
       volumeMounts:
       - name: shared-data
