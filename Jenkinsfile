@@ -17,7 +17,7 @@ spec:
       - name: shared-data
         mountPath: /shared
     - name: wizcli
-      image: wiziocli.azurecr.io/wizcli:latest
+      image: wiziocli.azurecr.io/wizcli:latest-amd64
       tty: true
       volumeMounts:
       - name: shared-data
