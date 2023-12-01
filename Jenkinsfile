@@ -1,33 +1,22 @@
 pipeline {
     agent {
         kubernetes {
-            // You might want to specify a label that's unique to this job to avoid conflicts.
             label 'my-k8s-agent-01'
             yaml '''
-apiVersion: v1
-kind: Pod
-spec:
-  containers:
-    - name: kaniko
-      image: gcr.io/kaniko-project/executor:debug
-      command:
-      - cat
-      tty: true
-      volumeMounts:
-      - name: shared-data
-        mountPath: /shared
-    - name: wizcli
-      image: wiziocli.azurecr.io/wizcli:latest-amd64
-      command:
-      - sleep
-      tty: true
-      volumeMounts:
-      - name: shared-data
-        mountPath: /shared
-  volumes:
-  - name: shared-data
-    emptyDir: {}
-'''
+            apiVersion: v1
+            kind: Pod
+            spec:
+              containers:
+                - name: kaniko
+                  image: gcr.io/kaniko-project/executor:debug
+                  tty: true
+                  volumeMounts:
+                  - name: shared-data
+                    mountPath: /shared
+              volumes:
+              - name: shared-data
+                emptyDir: {}
+            '''
         }
     }
 
@@ -49,15 +38,17 @@ spec:
                 }
             }
         }
-        
+
         stage('Scan Image with Wiz-CLI') {
             steps {
-                container('wizcli') {
-                    sh '''
-                    echo '/entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET'
-                    /entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET 
-                    /entrypoint docker scan -p $WIZ_POLICY --image /shared/my-image.tar
-                    '''
+                script {
+                    docker.image('wiziocli.azurecr.io/wizcli:latest-amd64').inside {
+                        sh '''
+                        echo '/entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET'
+                        /entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET 
+                        /entrypoint docker scan -p $WIZ_POLICY --image /shared/my-image.tar
+                        '''
+                    }
                 }
             }
         }
