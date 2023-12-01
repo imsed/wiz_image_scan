@@ -11,15 +11,17 @@ spec:
     - name: kaniko
       image: gcr.io/kaniko-project/executor:debug
       command:
-      - tail
-      - "-f"
-      - "/dev/null"
+      - cat
       tty: true
       volumeMounts:
       - name: shared-data
         mountPath: /shared
     - name: wizcli
       image: wiziocli.azurecr.io/wizcli:latest-amd64
+      command:
+      - tail
+      - "-f"
+      - "/dev/null"
       tty: true
       volumeMounts:
       - name: shared-data
