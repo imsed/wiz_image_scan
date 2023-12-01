@@ -18,8 +18,6 @@ spec:
         mountPath: /shared
     - name: wizcli
       image: wiziocli.azurecr.io/wizcli:latest
-      command:
-      - version
       tty: true
       volumeMounts:
       - name: shared-data
