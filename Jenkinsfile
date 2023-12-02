@@ -2,7 +2,7 @@ pipeline {
     agent {
         kubernetes {
             // You might want to specify a label that's unique to this job to avoid conflicts.
-            label 'my-k8s-agent'
+            label 'wizcli-agent'
             yaml '''
 apiVersion: v1
 kind: Pod
