@@ -1,22 +1,32 @@
 pipeline {
     agent {
         kubernetes {
-            label 'my-k8s-agent-01'
+            // You might want to specify a label that's unique to this job to avoid conflicts.
+            label 'my-k8s-agent'
             yaml '''
-            apiVersion: v1
-            kind: Pod
-            spec:
-              containers:
-                - name: kaniko
-                  image: gcr.io/kaniko-project/executor:debug
-                  tty: true
-                  volumeMounts:
-                  - name: shared-data
-                    mountPath: /shared
-              volumes:
-              - name: shared-data
-                emptyDir: {}
-            '''
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - name: kaniko
+      image: gcr.io/kaniko-project/executor:debug
+      command:
+      - cat
+      tty: true
+      volumeMounts:
+      - name: shared-data
+        mountPath: /shared
+    - name: wizcli
+      image: alpine:3
+      command: ["sh", "-c", "apk add ca-certificates wget && wget -O /entrypoint https://wizcli.app.wiz.io/latest/wizcli-linux-amd64 && chmod +x /entrypoint && tail -f /dev/null"]
+      tty: true
+      volumeMounts:
+      - name: shared-data
+        mountPath: /shared
+  volumes:
+  - name: shared-data
+    emptyDir: {}
+'''
         }
     }
 
@@ -38,17 +48,14 @@ pipeline {
                 }
             }
         }
-
+        
         stage('Scan Image with Wiz-CLI') {
             steps {
-                script {
-                    docker.image('wiziocli.azurecr.io/wizcli:latest-amd64').inside {
-                        sh '''
-                        echo '/entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET'
-                        /entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET 
-                        /entrypoint docker scan -p $WIZ_POLICY --image /shared/my-image.tar
-                        '''
-                    }
+                container('wizcli') {
+                    sh '''
+                    /entrypoint auth --id $WIZ_CLIENT_ID --secret $WIZ_CLIENT_SECRET 
+                    /entrypoint docker scan -p $WIZ_POLICY --image /shared/my-image.tar
+                    '''
                 }
             }
         }
